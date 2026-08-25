@@ -6,16 +6,20 @@ title = "CLI Chat Client"
 terminal = true  # Set this to false if running as graphical app
 
 
-[auth]
-api_key = "your_key_here"
-
-
-[bot]
+[grok]
 url = "https://api.x.ai/v1/chat/completions"
 model = "grok-3-mini-latest"
 stream = false
 temperature = 0.7
 reasoning_effort = "high"
+speak_color = "cyan"
+api_key = "key_here"
+
+
+[ollama]
+url = "http://local_ai_ollama:11434"
+model = "qwen2.5-coder:0.6b"
+stream = false
 speak_color = "cyan"
 
 

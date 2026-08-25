@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 use serde_json;
 
 // Local crates
-use crate::config::Config;
+use crate::config::{Config, ActiveBot};
 pub mod grok;
 pub mod display;
 
@@ -38,9 +38,6 @@ pub fn get_response(
     // Create the client
     let http_client: Client = Client::new();
 
-    // Set the url 
-    // let mut url: String = String::from("http://localhost:3000/dev/chat");
-   
     // Convert the prompt from a buffer into a string slice 
     let prompt: String = str::from_utf8(&buffer).unwrap().to_string(); 
     history.push(
@@ -49,23 +46,29 @@ pub fn get_response(
             content: prompt 
         }
     );
+
     let request = Request {
         messages: history.clone(),
-        model: &config.bot.model,
-        stream: &config.bot.stream,
-        temperature: &config.bot.temperature,
-        reasoning_effort: &config.bot.reasoning_effort
+        model: config.active_bot().model(),
+        stream: &config.globals.stream,
+        temperature: &config.globals.temperature,
+        reasoning_effort: &config.globals.reasoning_effort
     };
 
     let json_payload = serde_json::to_string(&request).unwrap();
  
     // Make the request
-    let resp = http_client.post(&config.bot.url)
-        .header("Authorization", format!("Bearer {}", &config.auth.api_key)) 
+    let mut query = http_client
+        .post(config.active_bot().url())
         .header("Content-Type", "application/json") 
-        .body(json_payload)
-        .send();
-   
+        .body(json_payload);
+ 
+    if let Some(key) = &config.api_key() {
+        query = query.header("Authorization", format!("Bearer {}", key)); 
+    };
+
+    let resp = query.send();
+
     // Get the text from the request
     let body: String = match resp {
         Ok(resp) => {

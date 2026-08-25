@@ -4,10 +4,11 @@ mod chat;
 
 
 fn main() {
+    
     // Get config file for application 
     let app_config =  match config::get_config() {
         Ok(data) => data,
-        Err(_) => panic!("Could not read config file") 
+        Err(e) => panic!("\x1b[31mCould not read config file:\n{e}") 
     };
 
     // Create the directory for storing history, if it doesn't exist already
@@ -27,5 +28,6 @@ fn main() {
         true => chat::terminal_app(&app_config, history_file_name),
         false => chat::http_app()
     }
+
 }
 

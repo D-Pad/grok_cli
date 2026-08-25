@@ -65,7 +65,7 @@ pub fn terminal_app(config: &Config, history_file_name: String) {
         response::display::type_message(
             response, 
             &mut handle, 
-            &config.bot.speak_color
+            &config.globals.speak_color
         ); 
         cache::cache_history(&history_file_name, &history).unwrap(); 
     };
