@@ -6,7 +6,7 @@ mod chat;
 fn main() {
     
     // Get config file for application 
-    let app_config =  match config::get_config() {
+    let app_config =  match config::get_config(None) {
         Ok(data) => data,
         Err(e) => panic!("\x1b[31mCould not read config file:\n{e}") 
     };

@@ -1,4 +1,4 @@
-use std::str;
+use std::{str, fs};
 
 // Third party crates for parsing JSON and making requests
 use reqwest::{blocking::{Client}, Error};
@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 use serde_json;
 
 // Local crates
-use crate::config::{Config, ActiveBot};
+use crate::config::{Config};
 pub mod grok;
 pub mod display;
 
@@ -96,7 +96,7 @@ pub fn get_response(
 
 
 #[cfg(test)]
-mod tests {
+mod response_tests {
     use super::*;
 
     #[test]
@@ -104,9 +104,6 @@ mod tests {
 
         // Create the client
         let mut history: Vec<Message> = Vec::new();
-
-        // Set the url 
-        // let mut url: String = String::from("http://localhost:3000/dev/chat");
 
         // Convert the prompt from a buffer into a string slice 
         let prompt: String = String::from("Hello, I am the user"); 
@@ -118,43 +115,14 @@ mod tests {
         );
         
         // Make the request
-        let resp: Result<&str, ()> = Ok(r#"{
-    "id":"91d1868f-3dcf-4b92-88c8-dac32e2ce8b4",
-    "object":"chat.completion",
-    "created":1750535675,
-    "model":"grok-3",
-    "choices":[
-        {
-            "index":0,
-            "message":
-            {
-                "role":"assistant",
-                "content":"  # Test Response for Chat Bot Testing\n\nHello! This is a generic markdown response to assist with your chat bot testing. It's designed to include various elements for character parsing. Below, you'll find headers, code blocks, bold, and italic text.\n\n## Key Elements Included\n\nThis section demonstrates **bold text** and *italic text*. For example, you can have a combination like **bold with *italic inside*** to test nested formatting.\n\n### Subheader for Variety\n\nHere's a smaller header. It's useful for structuring content in markdown.\n\nNow, let's include a small code block and an `inline_code_snip` to simulate code parsing:\n```# This is a simple Python code snippet\nprint('Hello, this is a test message!')```\n\nFeel free to use this response multiple times for your tests. If you need adjustments, just let me know!\n\n",
-                "refusal":null
-            },
-            "finish_reason":"stop"
-        }
-    ],
-    "usage":{
-        "prompt_tokens":36,
-        "completion_tokens":3,
-        "total_tokens":39,
-        "prompt_tokens_details": {
-            "text_tokens":36,
-            "audio_tokens":0,
-            "image_tokens":0,
-            "cached_tokens":4
-        },
-        "completion_tokens_details": {
-            "reasoning_tokens":0,
-            "audio_tokens":0,
-            "accepted_prediction_tokens":0,
-            "rejected_prediction_tokens":0
-        },
-        "num_sources_used":0
-    },
-    "system_fingerprint":"fp_be0739e203"
-}"#); 
+        let test_resp_text = match 
+            fs::read_to_string("src/chat/response/test_response.json") {
+                Ok(d) => d, 
+                Err(_) => panic!("Failed to read test response file")
+            };
+            
+
+        let resp: Result<&str, ()> = Ok(&test_resp_text);
 
         // Get the text from the request
         let body: String = match resp {
@@ -193,3 +161,4 @@ mod tests {
         Ok(())
     }
 }
+

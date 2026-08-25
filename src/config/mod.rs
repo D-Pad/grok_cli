@@ -38,7 +38,7 @@ pub struct OllamaConfig {
 
 #[derive(Deserialize)]
 pub struct Config {
-    pub title: Option<String>,
+    // pub title: Option<String>,
     pub globals: Globals,
     pub grok: GrokConfig,
     pub ollama: OllamaConfig,
@@ -90,10 +90,51 @@ impl<'a> ActiveBot<'a> {
 }
 
 
-pub fn get_config() -> Result<Config, Box<dyn std::error::Error>> {
-    let content = fs::read_to_string("config/config.toml")?;
+pub fn get_config(file_path: Option<&str>) -> 
+    Result<Config, Box<dyn std::error::Error>> 
+{
+    let default_path: &str = "config/config.toml";
+    let dir_path: &str = match file_path {
+        Some(p) => p,
+        None => default_path
+    };
+    let content = fs::read_to_string(dir_path)?;
     let config_data: Config = toml::from_str(&content)?;
     Ok(config_data)
 }
 
+
+#[cfg(test)]
+mod config_tests {
+    use super::*;
+
+    #[test]
+    pub fn test_settings() -> Result<(), Box<dyn std::error::Error>> {
+
+        let conf = get_config(Some("src/config/config.toml"))?;
+     
+        /*
+           terminal = true  # Set this to false if running as graphical app
+           stream = false
+           temperature = 0.7
+           reasoning_effort = "high"
+           speak_color = "cyan"
+           service = "ollama"
+        */
+
+        println!("\x1b[33m----------------------------------\x1b[36m");
+        println!("Terminal         : {}", conf.globals.terminal);
+        println!("Stream           : {}", conf.globals.stream);
+        println!("Temperature      : {}", conf.globals.temperature);
+        println!("Reasoning Effort : {}", conf.globals.reasoning_effort);
+        println!("Speak Color      : {}\n", conf.globals.speak_color);
+        println!("Model            : {}", conf.active_bot().model());
+        println!("URL              : {}", conf.active_bot().url());
+        println!("\x1b[33m----------------------------------\x1b[0m");
+        
+        Ok(())
+
+    }
+
+}
 
